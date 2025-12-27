@@ -23,24 +23,36 @@ body::before {
 #mainTitle {
   font-size: 72px;
   font-weight: bold;
-  color: #C19A6B;
+  color: #D4A066;
   text-align: center;
-  text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
-  margin: 0 0 30px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  margin: 0 0 10px;
   position: relative;
   top: 20px;
+  filter: none;
+}
+#authorInfo {
+  font-size: 50px;
+  font-weight: 600;
+  color: #A67C52;
+  text-align: center;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+  margin: 0 0 20px;
 }
 #beijingTime {
-  font-size: 28px;
+  font-size: 38px;
   font-weight: 600;
   color: #A67C52;
   text-align: center;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-  margin: 0 0 20px;
+  margin: 0 0 50px;
+  position: relative;
+  top: 200px;
+  z-index: 3;
 }
 #btnBackground {
   position: absolute;
-  top: calc(50% - 200px);
+  top: calc(50% - 360px);
   left: 50%;
   transform: translate(-50%, -50%);
   width: 800px;
@@ -59,8 +71,8 @@ body::before {
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border-radius: 30px;
   z-index: -1;
 }
@@ -115,7 +127,8 @@ body::before {
 #nextButton:active {
   transform: scale(0.98);
 }
-.functionBtn {
+/* 顶部按钮样式 */
+.topBtn {
   font-size: 27px;
   cursor: pointer;
   padding: 18px 36px;
@@ -127,23 +140,72 @@ body::before {
   white-space: nowrap;
   transition: all 0.2s;
   position: absolute;
-  top: 110px;
   z-index: 2;
+  text-decoration: none;
+  width: auto;
 }
-.functionBtn:hover {
+.topBtn:hover {
   background-color: rgba(255, 235, 205, 0.9);
   transform: scale(1.05);
+  color: #8B5A2B;
 }
-#originalBtn {
+#peaceJumpLink {
   left: 50px;
+  top: 110px;
 }
-#pubgBtn {
+#pubgLink {
   right: 50px;
+  top: 110px;
+}
+#beautifyLink {
+  right: 50px;
+  top: 200px;
+}
+/* 底部按钮样式：新增加入美化频道按钮，与作者tg右对齐 */
+.bottomBtn {
+  font-size: 20px;
+  color: #A67C52;
+  text-decoration: none;
+  border: 2px solid #C19A6B;
+  border-radius: 8px;
+  padding: 10px 24px;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+  z-index: 2;
+  white-space: nowrap;
+  position: absolute;
+  cursor: pointer;
+  width: auto;
+}
+.bottomBtn:hover {
+  background-color: rgba(255, 235, 205, 0.9);
+  transform: scale(1.05);
+  color: #8B5A2B;
+  text-decoration: underline;
+}
+#qqLink {
+  left: 50px;
+  top: 200px;
+}
+#appJumpBtn {
+  left: 200px;
+  top: 200px;
+}
+#zztg {
+  left: 50px;
+  top: 260px;
+}
+/* 新增：作者tg右边的加入美化频道按钮 */
+#beautifyChannelBtn {
+  left: 160px; /* 作者tg左侧50px + 按钮宽度约90px + 间距20px */
+  top: 260px; /* 与作者tg同一水平高度，保持对齐 */
 }
 </style>
 </head>
 <body>
 <h1 id="mainTitle">椎名真昼官网</h1>
+<p id="authorInfo">作者:秋小憬</p>
 <p id="beijingTime"></p>
 <div id="btnBackground">
   <div id="blurLayer"></div>
@@ -156,8 +218,16 @@ body::before {
       <button id="nextButton">下一首</button>
     </div>
   </div>
-  <button id="originalBtn" class="functionBtn">和平灵敏度和键位</button>
-  <button id="pubgBtn" class="functionBtn">PUBG键位和灵敏度</button>
+  <!-- 顶部按钮 -->
+  <a href="http://pan.tool234.com/down.php/f24c16999b1596fd9905e3f324fc1ebf.sh" target="_blank" class="topBtn" id="peaceJumpLink">下载椎名真昼内核</a>
+  <a href="https://www.123912.com/s/IV39Td-aU3Eh" target="_blank" class="topBtn" id="pubgLink" rel="noopener noreferrer">下载PUBG直装</a>
+  <a href="http://pan.tool234.com/down.php/f8549e4523d79eae7a58c4639e0b3134.apk" target="_blank" class="topBtn" id="beautifyLink" rel="noopener noreferrer">下载PUBG美化</a>
+  <!-- 底部按钮 -->
+  <a href="https://qm.qq.com/q/JmEZEg3yay" target="_blank" class="bottomBtn" id="qqLink">加作者QQ</a>
+  <button class="bottomBtn" id="appJumpBtn">加入频道</button>
+  <button class="bottomBtn" id="zztg">作者tg</button>
+  <!-- 新增：作者tg右边的加入美化频道按钮 -->
+  <button class="bottomBtn" id="beautifyChannelBtn">加入美化频道</button>
 </div>
 <script>
 // 时间更新
@@ -207,23 +277,18 @@ let currentTrack = 0;
 const audioPlayer = document.getElementById('audioPlayer');
 const nextButton = document.getElementById('nextButton');
 let wasPlaying = false;
-// 加载歌曲
 function loadCurrentTrack() {
   const currentSong = playlist[currentTrack];
   audioPlayer.src = currentSong.url;
   audioPlayer.load();
-  
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: currentSong.title,
       artist: currentSong.artist,
-      artwork: [
-        { src: currentSong.artwork, sizes: '512x512', type: 'image/jpeg' }
-      ]
+      artwork: [{ src: currentSong.artwork, sizes: '512x512', type: 'image/jpeg' }]
     });
   }
 }
-// 下一首逻辑
 function playNext() {
   currentTrack = (currentTrack + 1) % playlist.length;
   loadCurrentTrack();
@@ -231,13 +296,11 @@ function playNext() {
     console.log('切歌自动播放受限，需手动点击播放器播放', err);
   });
 }
-// 页面加载完成绑定事件
 document.addEventListener('DOMContentLoaded', function() {
   nextButton.addEventListener('click', playNext);
   audioPlayer.addEventListener('ended', playNext);
   loadCurrentTrack();
 });
-// 页面可见性监听
 document.addEventListener('visibilitychange', function() {
   if (document.hidden) {
     wasPlaying = !audioPlayer.paused;
@@ -248,14 +311,35 @@ document.addEventListener('visibilitychange', function() {
     }
   }
 });
-// 功能按钮点击事件
-document.getElementById('originalBtn').addEventListener('click', function() {
-  alert("和平精英操作键位分享码：3076-2369-7722-1862-39");
-  alert("和平精英战神灵敏度分享码：2972-8885-4279-9323-58");
+// 加入频道按钮事件
+document.getElementById('appJumpBtn').addEventListener('click', function() {
+  const targetAppUrl = "tg://resolve?domain=qiuxiaojingmod";
+  window.location.href = targetAppUrl;
+  setTimeout(() => {
+    if (document.hidden === false && window.location.href !== targetAppUrl) {
+      alert("Ciallo~未检测到TG哦~😚跳转失败！\n宝宝检查是否已安装哦🥱");
+    }
+  }, 2000);
 });
-document.getElementById('pubgBtn').addEventListener('click', function() {
-  alert("PUBG操作键位分享码：1-7545-6865-2756-5628-421");
-  alert("PUBG战神灵敏度分享码：1-7501-5574-9750-6311-007");
+// 作者tg按钮事件
+document.getElementById('zztg').addEventListener('click', function() {
+  const targetAppUrl = "tg://resolve?domain=qiuxiaojing520";
+  window.location.href = targetAppUrl;
+  setTimeout(() => {
+    if (document.hidden === false && window.location.href !== targetAppUrl) {
+      alert("Ciallo~未检测到TG哦~😚跳转失败！\n宝宝检查是否已安装哦🥱");
+    }
+  }, 2000);
+});
+// 新增：加入美化频道按钮事件（默认绑定美化相关Telegram频道，可修改domain）
+document.getElementById('beautifyChannelBtn').addEventListener('click', function() {
+  const targetAppUrl = "tg://resolve?domain=YLNMH";
+  window.location.href = targetAppUrl;
+  setTimeout(() => {
+    if (document.hidden === false && window.location.href !== targetAppUrl) {
+      alert("Ciallo~未检测到TG哦~😚跳转失败！\n宝宝检查是否已安装哦🥱");
+    }
+  }, 2000);
 });
 </script>
 </body>
