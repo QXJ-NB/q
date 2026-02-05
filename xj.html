@@ -213,6 +213,29 @@ body::before {
   left: 160px; /* 作者tg左侧50px + 按钮宽度约90px + 间距20px */
   top: 260px; /* 与作者tg同一水平高度，保持对齐 */
 }
+/* 替换深色模式代码 */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-image: url("https://cccimg.com/view.php/36fdf675926c3eae787de0952e64bf23.jpg");
+    background-color: #121212; /* 深色底色衬托背景图 */
+  }
+  body::before {
+    display: none; /* 关闭遮罩层 */
+  }
+  #blurLayer {
+    background-color: transparent; /* 关闭模糊层 */
+    backdrop-filter: none; /* 关闭模糊效果 */
+  }
+  /* 文字和按钮样式保持不变 */
+  #mainTitle, #authorInfo, #beijingTime, .topBtn, .bottomBtn, #nextButton {
+    color: #E8C49E;
+  }
+  .topBtn:hover, .bottomBtn:hover, #nextButton:hover {
+    color: #FFF8DC;
+    background-color: rgba(139, 90, 43, 0.3);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -235,13 +258,11 @@ body::before {
   <!-- 顶部按钮 -->
   <a href="http://pan.tool234.com/down.php/f24c16999b1596fd9905e3f324fc1ebf.sh" target="_blank" class="topBtn" id="peaceJumpLink">下载椎名真昼内核</a>
   <a href="https://www.123912.com/s/IV39Td-aU3Eh" target="_blank" class="topBtn" id="pubgLink" rel="noopener noreferrer">下载PUBG直装</a>
-  <a href="https://wwaza.lanzouq.com/iMucP3he7ogh" target="_blank" class="topBtn" id="beautifyLink" rel="noopener noreferrer">下载PUBG美化</a>
+  <a href="https://wwaza.lanzouq.com/iPB5O3htfmyb" target="_blank" class="topBtn" id="beautifyLink" rel="noopener noreferrer">下载PUBG美化</a>
   <!-- 底部按钮 -->
   <a href="https://qm.qq.com/q/JmEZEg3yay" target="_blank" class="bottomBtn" id="qqLink">加作者QQ</a>
   <button class="bottomBtn" id="appJumpBtn">加入频道</button>
   <button class="bottomBtn" id="zztg">作者tg</button>
-  <!-- 新增：作者tg右边的加入美化频道按钮 -->
-  <button class="bottomBtn" id="beautifyChannelBtn">加入美化频道</button>
 </div>
 <script>
 // 时间更新
@@ -263,25 +284,25 @@ setInterval(updateBeijingTime, 1000);
 // 音乐播放核心功能
 const playlist = [
   {
-    url: "http://pan.tool234.com/view.php/4a3d9de27ff2c4c60e2d2444dcf6513d.mp3",
+    url: "https://cccimg.com/view.php/4a3d9de27ff2c4c60e2d2444dcf6513d.mp3",
     title: "红色高跟鞋",
     artist: "未知艺术家",
     artwork: "https://cccimg.com/view.php/10aa25188ab9ee48465f945395ee84c1.jpg"
   },
   {
-    url: "http://pan.tool234.com/view.php/e39e69a02862468215161f5fa4a1ca11.mp3",
-    title: "最长的电影",
+    url: "https://cccimg.com/view.php/012b61e454251519df89cfea66437fd0.mp3",
+    title: "蒲公英的约定",
     artist: "JAY",
     artwork: "https://cccimg.com/view.php/10aa25188ab9ee48465f945395ee84c1.jpg"
   },
   {
-    url: "http://pan.tool234.com/view.php/580340fd3df2f2c3c75d02fed949ac2b.mp3",
+    url: "https://cccimg.com/view.php/580340fd3df2f2c3c75d02fed949ac2b.mp3",
     title: "花海",
     artist: "Jay",
     artwork: "https://cccimg.com/view.php/10aa25188ab9ee48465f945395ee84c1.jpg"
   },
   {
-    url: "http://pan.tool234.com/view.php/d2733b2b075e4cb6e4aea1e155e8d6ca.flac",
+    url: "https://cccimg.com/view.php/d2733b2b075e4cb6e4aea1e155e8d6ca.flac",
     title: "恶作剧",
     artist: "未知艺术家",
     artwork: "https://cccimg.com/view.php/10aa25188ab9ee48465f945395ee84c1.jpg"
@@ -365,7 +386,7 @@ document.addEventListener('visibilitychange', function() {
 });
 // 按钮事件（保持不变）
 document.getElementById('appJumpBtn').addEventListener('click', function() {
-  const targetAppUrl = "tg://resolve?domain=qiuxiaojingmod";
+  const targetAppUrl = "tg://resolve?domain=QXJZPD";
   window.location.href = targetAppUrl;
   setTimeout(() => {
     if (document.hidden === false && window.location.href !== targetAppUrl) {
@@ -374,16 +395,7 @@ document.getElementById('appJumpBtn').addEventListener('click', function() {
   }, 2000);
 });
 document.getElementById('zztg').addEventListener('click', function() {
-  const targetAppUrl = "tg://resolve?domain=qiuxiaojing520";
-  window.location.href = targetAppUrl;
-  setTimeout(() => {
-    if (document.hidden === false && window.location.href !== targetAppUrl) {
-      alert("Ciallo~未检测到TG哦~😚跳转失败！\n宝宝检查是否已安装哦🥱");
-    }
-  }, 2000);
-});
-document.getElementById('beautifyChannelBtn').addEventListener('click', function() {
-  const targetAppUrl = "tg://resolve?domain=YLNMH";
+  const targetAppUrl = "tg://resolve?domain=QXJNP";
   window.location.href = targetAppUrl;
   setTimeout(() => {
     if (document.hidden === false && window.location.href !== targetAppUrl) {
