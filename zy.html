@@ -136,8 +136,8 @@ body::before {
 #nextButton:active {
   transform: scale(0.98);
 }
-/* 下载内核按钮样式 - 居中顶部 */
-#peaceJumpLink {
+/* 按钮通用样式 */
+.btn-common {
   font-size: 27px;
   cursor: pointer;
   padding: 18px 36px;
@@ -152,15 +152,21 @@ body::before {
   z-index: 2;
   text-decoration: none;
   width: auto;
-  /* 居中定位 */
   left: 50%;
-  top: 320px;
   transform: translateX(-50%);
 }
-#peaceJumpLink:hover {
+.btn-common:hover {
   background-color: rgba(255, 235, 205, 0.9);
   transform: translateX(-50%) scale(1.05);
   color: #8B5A2B;
+}
+/* 下载内核按钮 */
+#peaceJumpLink {
+  top: 320px;
+}
+/* 刷机按钮 */
+#flashJumpLink {
+  top: 420px;
 }
 /* 复制成功提示样式 */
 #copyToast {
@@ -198,12 +204,14 @@ body::before {
       <audio id="audioPlayer" controls preload="metadata">
         <source src="https://cccimg.com/view.php/012b61e454251519df89cfea66437fd0.mp3" type="audio/mpeg">
         你的浏览器不支持音频播放，请更新浏览器
-       ></audio>
+       >
       <button id="nextButton">下一首</button>
     </div>
   </div>
-  <!-- 仅保留下载内核按钮，点击复制666并跳转 -->
-  <a href="https://wwaza.lanzouq.com/b0188112qj" target="_blank" id="peaceJumpLink" onclick="copyToClipboard()">下载</a>
+  <!-- 下载内核按钮 -->
+  <a href="https://wwaza.lanzouq.com/b0188112qj" target="_blank" id="peaceJumpLink" class="btn-common" onclick="copyToClipboard()">下载</a>
+  <!-- 刷机按钮 -->
+  <a href="https://wwaza.lanzouq.com/b01883fslg" target="_blank" id="flashJumpLink" class="btn-common" onclick="copyToClipboard()">刷机</a>
 </div>
 <script>
 // 时间更新
