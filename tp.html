@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>图片转二进制H工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            background: radial-gradient(circle at 10% 30%, rgba(245, 245, 245, 0.5), rgba(200, 212, 220, 0.4)),
+                        url('https://picsum.photos/id/104/1920/1080') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            font-family: 'Inter', system-ui, 'Segoe UI', 'Consolas', 'Microsoft YaHei', sans-serif;
+        }
+
+        /* 毛玻璃叠加层 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 248, 235, 0.3);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            z-index: -1;
+        }
+
+        /* 全局滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e67e22;
+            border-radius: 10px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 215, 150, 0.6);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            width: 100%;
+            max-width: 880px;
+            padding: 1.6rem 2rem;
+            text-align: center;
+            margin-bottom: 0.2rem;
+        }
+
+        .tool-name {
+            font-size: 2.3rem;
+            font-weight: 800;
+            background: linear-gradient(125deg, #e67e22, #f7b731, #d35400);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .author-info {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            margin-top: 0.7rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.8rem;
+            flex-wrap: wrap;
+            font-weight: 450;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 880px;
+            padding: 2rem 2rem 2.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
+
+        /* 上传区精修 */
+        .upload-area {
+            border: 2px dashed rgba(230, 126, 34, 0.5);
+            border-radius: 1.8rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: rgba(255, 250, 240, 0.4);
+        }
+
+        .upload-area:hover {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, 0.08);
+            transform: scale(0.99);
+        }
+
+        .upload-icon {
+            font-size: 3.5rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            margin-bottom: 0.8rem;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.4rem;
+        }
+
+        .upload-tip {
+            font-size: 0.85rem;
+            color: #5a6e7c;
+            background: rgba(255,255,240,0.5);
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+        }
+
+        .preview-area {
+            display: flex;
+            justify-content: center;
+            margin: 0.2rem 0;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 190px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 2px solid rgba(255,215,170,0.7);
+            object-fit: contain;
+            background: #fef3e2;
+            transition: 0.2s;
+        }
+
+        .file-info {
+            background: rgba(255, 245, 225, 0.7);
+            border-radius: 60px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 500;
+            justify-content: space-between;
+        }
+
+        /* 使用方法卡片 */
+        .usage-card {
+            background: rgba(248, 249, 250, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 1.4rem;
+            padding: 1rem 1.5rem;
+            border-left: 6px solid #e67e22;
+            transition: 0.2s;
+        }
+
+        .usage-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 0.6rem;
+            color: #c0392b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .usage-step {
+            display: flex;
+            gap: 12px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #2c3e50;
+            line-height: 1.4;
+        }
+
+        .step-number {
+            background: #e67e22;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .config-label {
+            font-weight: 600;
+            color: #2d3e50;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .text-input {
+            padding: 0.8rem 1.2rem;
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(230, 126, 34, 0.4);
+            border-radius: 1.2rem;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            font-family: 'Consolas', monospace;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #e67e22;
+            background: rgba(255, 250, 235, 0.9);
+            box-shadow: 0 0 0 3px rgba(230,126,34,0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 0.5rem 0;
+        }
+
+        .btn {
+            padding: 0.8rem 1.7rem;
+            border: none;
+            border-radius: 3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            background: linear-gradient(100deg, #e67e22, #f39c12);
+            color: white;
+            box-shadow: 0 5px 12px rgba(230,126,34,0.25);
+        }
+
+        .btn-outline {
+            background: rgba(255,255,245,0.7);
+            backdrop-filter: blur(4px);
+            color: #e67e22;
+            border: 1px solid #e67e22;
+            box-shadow: none;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: #e67e22;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            border-color: #e67e22;
+            color: #e67e22;
+        }
+
+        .btn-cancel:hover:not(:disabled) {
+            background: #e67e22;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            background: rgba(20, 20, 25, 0.08);
+            backdrop-filter: blur(4px);
+            border-radius: 1.2rem;
+            padding: 1rem;
+            font-family: 'Consolas', monospace;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 240px;
+            overflow: auto;
+            border: 1px solid rgba(230,126,34,0.3);
+        }
+
+        .progress-group {
+            width: 100%;
+            gap: 0.5rem;
+        }
+
+        .progress-container {
+            height: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #e67e22, #f4b43a);
+            width: 0%;
+            height: 100%;
+            transition: width 0.1s ease;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 0.7rem 1.8rem;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            z-index: 1200;
+            display: none;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+            .main-container { padding: 1.5rem; }
+            .tool-name { font-size: 1.7rem; }
+            .btn { width: 100%; }
+            .btn-group { gap: 0.7rem; }
+            .toast { white-space: normal; width: 80%; text-align: center; }
+        }
+        .badge-small {
+            background: rgba(230,126,34,0.2);
+            border-radius: 26px;
+            padding: 0.2rem 0.7rem;
+            font-size: 0.7rem;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <div class="header glass-card">
+        <div class="tool-name">🖼️ 图片转二进制 H 头文件</div>
+        <div class="author-info">
+            <span>作者: 椎名</span>
+            <span>频道: @Mahiru</span>
+            <span class="badge-small">秒输出</span>
+        </div>
+    </div>
+    <div class="main-container glass-card">
+        <!-- 上传区 -->
+        <label class="upload-area" for="file-input">
+            <div class="upload-icon">🖼️➕</div>
+            <div class="upload-text">点击选取图片</div>
+            <div class="upload-tip">PNG · JPG · JPEG · GIF · BMP · WebP</div>
+            <input type="file" id="file-input" accept="image/*">
+        </label>
+
+        <!-- 预览区 -->
+        <div class="preview-area" id="preview-area" style="display: none;">
+            <img id="image-preview" class="image-preview" alt="预览图">
+        </div>
+        <div class="file-info glass-card" id="file-info" style="display: none;">
+            <span>📄 <span id="file-name">--</span></span>
+            <span>📦 大小：<span id="file-size">--</span></span>
+        </div>
+
+        <!-- 使用方法：全新替换内容，符合要求 -->
+        <div class="usage-card">
+            <div class="usage-title">
+                <span>📖 使用方法</span>
+            </div>
+            <div class="usage-step">
+                <span class="step-number">1</span>
+                <span>点击上方区域上传图片（支持常见格式）</span>
+            </div>
+            <div class="usage-step">
+                <span class="step-number">2</span>
+                <span>自定义数组变量名（例如 <code>logo_img</code>，默认 image_data）</span>
+            </div>
+            <div class="usage-step">
+                <span class="step-number">3</span>
+                <span>点击「⚡ 开始转换」，工具将图片转为 <strong>const unsigned char 数组[]</strong> 格式</span>
+            </div>
+            <div class="usage-step">
+                <span class="step-number">4</span>
+                <span>转换后，可「📋 复制 H 内容」或「💾 下载 .h 文件」（文件名 = 原图片名.h）</span>
+            </div>
+            <div class="usage-step">
+                <span class="step-number">✨</span>
+                <span>已移除 #include / 宏守卫 / 长度变量，仅保留纯净数组，适合嵌入式/单片机项目。</span>
+            </div>
+        </div>
+
+        <!-- 变量配置 -->
+        <div class="config-group">
+            <label class="config-label">📛 数组变量名</label>
+            <input type="text" class="text-input" id="array-name" placeholder="例如: boot_screen, icon_data" value="image_data">
+        </div>
+
+        <!-- 按钮组 -->
+        <div class="btn-group">
+            <button class="btn" id="convert-btn" disabled>⚡ 开始转换</button>
+            <button class="btn btn-outline btn-cancel" id="cancel-btn" disabled>⛔ 取消转换</button>
+            <button class="btn btn-outline" id="copy-btn" disabled>📋 复制 H 内容</button>
+            <button class="btn btn-outline" id="download-btn" disabled>💾 下载 .h 文件</button>
+        </div>
+
+        <!-- 进度条区域 -->
+        <div class="progress-group" id="progress-group" style="display: none;">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="progress-text" id="progress-text" style="text-align: center; font-size:0.8rem;">等待转换...</div>
+        </div>
+
+        <div class="config-label" style="margin-bottom: -0.6rem;">📜 转换结果预览</div>
+        <div class="result-container" id="result-container">
+            ⏳ 尚未转换。请上传图片并点击「开始转换」。
+        </div>
+    </div>
+    <div class="toast" id="toast">✨ 操作成功</div>
+
+    <script>
+        (function(){
+            // DOM 元素
+            const fileInput = document.getElementById('file-input');
+            const fileInfoDiv = document.getElementById('file-info');
+            const fileNameSpan = document.getElementById('file-name');
+            const fileSizeSpan = document.getElementById('file-size');
+            const arrayNameInput = document.getElementById('array-name');
+            const convertBtn = document.getElementById('convert-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const resultContainer = document.getElementById('result-container');
+            const toastDiv = document.getElementById('toast');
+            const progressGroup = document.getElementById('progress-group');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const previewArea = document.getElementById('preview-area');
+            const previewImg = document.getElementById('image-preview');
+            
+            // 全局状态
+            let currentImageFile = null;
+            let hFileContent = '';
+            let isConverting = false;
+            let abortController = null;
+            
+            const MAX_DISPLAY_LENGTH = 8000;
+            
+            function showToast(msg, isError = false) {
+                toastDiv.textContent = msg;
+                toastDiv.style.background = isError ? 'rgba(200, 60, 50, 0.9)' : 'rgba(0,0,0,0.8)';
+                toastDiv.style.display = 'block';
+                setTimeout(() => {
+                    toastDiv.style.display = 'none';
+                }, 2400);
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+                return (bytes / 1048576).toFixed(2) + ' MB';
+            }
+            
+            function resetProgressUI() {
+                progressBar.style.width = '0%';
+                progressText.textContent = '等待转换...';
+                progressGroup.style.display = 'none';
+            }
+            
+            function showPreview(file) {
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                previewImg.onload = () => URL.revokeObjectURL(url);
+                previewImg.src = url;
+                previewArea.style.display = 'flex';
+            }
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    showToast('请选择图片文件 (PNG/JPG等)', true);
+                    fileInput.value = '';
+                    return;
+                }
+                currentImageFile = file;
+                fileNameSpan.textContent = file.name;
+                fileSizeSpan.textContent = formatFileSize(file.size);
+                fileInfoDiv.style.display = 'flex';
+                showPreview(file);
+                resultContainer.textContent = `✅ 已加载: ${file.name}\n📦 大小: ${formatFileSize(file.size)}\n点击「开始转换」生成纯净二进制数组。`;
+                convertBtn.disabled = false;
+                copyBtn.disabled = true;
+                downloadBtn.disabled = true;
+                hFileContent = '';
+                if (isConverting) {
+                    if(abortController) abortController.abort();
+                    isConverting = false;
+                }
+                resetProgressUI();
+                cancelBtn.disabled = true;
+            });
+            
+            // 分块读取二进制
+            async function readImageAsBinary(file, signal, progressCallback) {
+                return new Promise((resolve, reject) => {
+                    if (signal.aborted) return reject(new Error('转换已取消'));
+                    const fileSize = file.size;
+                    let offset = 0;
+                    const chunks = [];
+                    const CHUNK = 256 * 1024;
+                    const reader = new FileReader();
+                    
+                    function loadNext() {
+                        if (signal.aborted) return reject(new Error('转换已取消'));
+                        const slice = file.slice(offset, offset + CHUNK);
+                        reader.readAsArrayBuffer(slice);
+                    }
+                    
+                    reader.onload = (ev) => {
+                        if (signal.aborted) return reject(new Error('转换已取消'));
+                        const chunk = new Uint8Array(ev.target.result);
+                        chunks.push(chunk);
+                        offset += chunk.length;
+                        const percent = (offset / fileSize) * 70;
+                        progressCallback(Math.min(70, percent));
+                        if (offset < fileSize) {
+                            loadNext();
+                        } else {
+                            const totalLen = chunks.reduce((acc, arr) => acc + arr.length, 0);
+                            const fullBuffer = new Uint8Array(totalLen);
+                            let pos = 0;
+                            for (const arr of chunks) {
+                                fullBuffer.set(arr, pos);
+                                pos += arr.length;
+                            }
+                            resolve(fullBuffer);
+                        }
+                    };
+                    reader.onerror = () => reject(new Error('文件读取失败'));
+                    loadNext();
+                });
+            }
+            
+            // 生成数组字符串
+            async function generateBinaryArrayString(data, signal, progressCallback) {
+                return new Promise((resolve, reject) => {
+                    if (signal.aborted) return reject(new Error('转换已取消'));
+                    const total = data.length;
+                    let index = 0;
+                    const outputParts = [];
+                    function processBatch(deadline) {
+                        if (signal.aborted) return reject(new Error('转换已取消'));
+                        let processed = 0;
+                        while (index < total && (deadline.timeRemaining() > 1 || processed < 5000)) {
+                            const byte = data[index];
+                            const hexStr = '0x' + byte.toString(16).padStart(2, '0');
+                            outputParts.push(hexStr);
+                            if ((index + 1) % 16 === 0 && index !== total - 1) {
+                                outputParts.push('\n');
+                            } else if (index !== total - 1) {
+                                outputParts.push(', ');
+                            }
+                            index++;
+                            processed++;
+                        }
+                        const percent = 70 + (index / total) * 25;
+                        progressCallback(Math.min(95, percent));
+                        if (index >= total) {
+                            resolve(outputParts.join(''));
+                        } else {
+                            requestIdleCallback(processBatch);
+                        }
+                    }
+                    requestIdleCallback(processBatch);
+                });
+            }
+            
+            // 纯净头文件：无include 无宏守卫 无长度变量
+            function buildPureArrayHeader(arrayVarName, arrayContentStr) {
+                const varName = arrayVarName.trim() || "image_data";
+                return `const unsigned char ${varName}[] = {\n${arrayContentStr}\n};`;
+            }
+            
+            async function startConversion() {
+                if (!currentImageFile || isConverting) return;
+                isConverting = true;
+                convertBtn.disabled = true;
+                cancelBtn.disabled = false;
+                copyBtn.disabled = true;
+                downloadBtn.disabled = true;
+                progressGroup.style.display = 'flex';
+                progressBar.style.width = '0%';
+                progressText.textContent = '读取图片数据中... 0%';
+                resultContainer.textContent = `🔄 正在转换「${currentImageFile.name}」生成纯净头文件...`;
+                
+                abortController = new AbortController();
+                const signal = abortController.signal;
+                
+                try {
+                    const imageBinary = await readImageAsBinary(currentImageFile, signal, (prog) => {
+                        if (signal.aborted) throw new Error('已取消');
+                        progressBar.style.width = `${prog}%`;
+                        progressText.textContent = `读取图片... ${Math.floor(prog)}%`;
+                    });
+                    if (signal.aborted) throw new Error('转换已取消');
+                    
+                    progressText.textContent = `生成二进制数组... 75%`;
+                    const arrayBody = await generateBinaryArrayString(imageBinary, signal, (prog) => {
+                        if (signal.aborted) throw new Error('已取消');
+                        progressBar.style.width = `${prog}%`;
+                        progressText.textContent = `格式化数组... ${Math.floor(prog)}%`;
+                    });
+                    if (signal.aborted) throw new Error('转换已取消');
+                    
+                    progressBar.style.width = '96%';
+                    progressText.textContent = '生成头文件... 96%';
+                    const varName = arrayNameInput.value || 'image_data';
+                    hFileContent = buildPureArrayHeader(varName, arrayBody);
+                    
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '✅ 转换完成！100%';
+                    showToast(`转换成功！数组变量名: ${varName}`);
+                    
+                    const displayContent = hFileContent.length > MAX_DISPLAY_LENGTH 
+                        ? hFileContent.substring(0, MAX_DISPLAY_LENGTH) + '\n\n...... (内容过长，请下载完整 .h 文件) ......'
+                        : hFileContent;
+                    resultContainer.textContent = displayContent;
+                    copyBtn.disabled = false;
+                    downloadBtn.disabled = false;
+                    
+                    setTimeout(() => {
+                        if (!isConverting) progressGroup.style.display = 'none';
+                        else progressGroup.style.display = 'none';
+                    }, 1800);
+                    
+                } catch (err) {
+                    if (err.message === '转换已取消' || err.message === '已取消') {
+                        resultContainer.textContent = '⚠️ 用户取消了转换。';
+                        showToast('已取消转换');
+                    } else {
+                        resultContainer.textContent = `❌ 转换失败: ${err.message}`;
+                        showToast(`错误: ${err.message}`, true);
+                    }
+                    hFileContent = '';
+                    copyBtn.disabled = true;
+                    downloadBtn.disabled = true;
+                    resetProgressUI();
+                } finally {
+                    isConverting = false;
+                    convertBtn.disabled = false;
+                    cancelBtn.disabled = true;
+                    abortController = null;
+                    if (progressGroup.style.display !== 'none') {
+                        setTimeout(() => { if (!isConverting) progressGroup.style.display = 'none'; }, 1200);
+                    }
+                }
+            }
+            
+            function cancelConversion() {
+                if (abortController && isConverting) {
+                    abortController.abort();
+                    showToast('正在取消转换...');
+                    cancelBtn.disabled = true;
+                }
+            }
+            
+            function copyContent() {
+                if (!hFileContent) {
+                    showToast('暂无转换结果，请先转换图片', true);
+                    return;
+                }
+                navigator.clipboard.writeText(hFileContent).then(() => {
+                    showToast('✅ 已复制纯净数组头文件内容');
+                }).catch(() => {
+                    showToast('复制失败，可手动选取', true);
+                });
+            }
+            
+            // 下载逻辑：原图片名.h (完全符合需求)
+            function downloadHeader() {
+                if (!hFileContent) {
+                    showToast('没有转换数据，请先转换图片', true);
+                    return;
+                }
+                if (!currentImageFile) {
+                    showToast('请先上传图片文件', true);
+                    return;
+                }
+                try {
+                    let originalName = currentImageFile.name;
+                    const lastDotIndex = originalName.lastIndexOf('.');
+                    let baseName = lastDotIndex !== -1 ? originalName.substring(0, lastDotIndex) : originalName;
+                    baseName = baseName.replace(/[\\/:*?"<>|]/g, '_');
+                    const downloadFileName = baseName + '.h';
+                    
+                    const blob = new Blob([hFileContent], { type: 'application/octet-stream' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = downloadFileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                    showToast(`下载成功：${downloadFileName}`);
+                } catch (e) {
+                    showToast('下载失败：' + e.message, true);
+                }
+            }
+            
+            convertBtn.addEventListener('click', startConversion);
+            cancelBtn.addEventListener('click', cancelConversion);
+            copyBtn.addEventListener('click', copyContent);
+            downloadBtn.addEventListener('click', downloadHeader);
+            
+            function onArrayNameChange() {
+                if (hFileContent && !isConverting) {
+                    resultContainer.textContent = "⚠️ 变量名已更改，请重新点击「开始转换」以使用新的数组名。\n\n" + (resultContainer.textContent.length > 180 ? resultContainer.textContent.substring(0,180)+"..." : resultContainer.textContent);
+                    copyBtn.disabled = true;
+                    downloadBtn.disabled = true;
+                    hFileContent = '';
+                }
+            }
+            arrayNameInput.addEventListener('change', onArrayNameChange);
+            arrayNameInput.addEventListener('input', onArrayNameChange);
+        })();
+    </script>
+</body>
+</html>
